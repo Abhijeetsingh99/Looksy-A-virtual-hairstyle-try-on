@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Virtual Hairstyle Try-On</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: url("{{ url_for('static', filename='home/background_hair.jpeg') }}") no-repeat center center/cover;
+      color: #333;
+    }
+    
+    header {
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 1rem 0;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo img {
+      height: 40px;
+    }
+    
+    .logo span {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+    
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    
+    nav a:hover {
+      color: #ff6600;
+    }
+    
+    .btn {
+      background: #ff6600;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 5px;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+    
+    .btn:hover {
+      background: #e65c00;
+      color: white;
+    }
+    
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 2rem;
+      color: white;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    
+    .hero h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+    
+    section {
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    section h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      color: #ffffff;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .card-content {
+      padding: 1.2rem;
+    }
+    
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .step {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      flex: 1;
+      min-width: 200px;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    footer {
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+    }
+    
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      
+      nav ul {
+        margin-top: 1rem;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .steps {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header> <div class="logo">
+    <img src="/static/home/logo_cleaned.png" alt="Logo">
+    <span>Looksy</span>
+</div>
+    <nav>
+      <h2>Welcome to Looksy</h2>
+      <ul>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          {% if current_user.is_authenticated %}
+              <li><a href="{{ url_for('try_on') }}">Virtual Try-On</a></li>
+              <li><a href="{{ url_for('profile') }}">My Profile</a></li>
+              <li><a href="{{ url_for('logout') }}" class="btn">Logout</a></li>
+          {% else %}
+              <li><a href="{{ url_for('login') }}" class="btn">Login</a></li>
+              <li><a href="{{ url_for('register') }}">Register</a></li>
+          {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <h1>Find Your Perfect Haircut with AI!</h1>
+        <p>Discover the best hairstyles based on your face shape and preferences using our virtual try-on technology.</p>
+        <a href="{{ url_for('try_on') }}" class="btn">Try It Now</a>
+      </div>
+    </section>
+
+    <section id="trending">
+      <h2><b>Trending Hairstyles</b></h2>
+      <div class="grid">
+        <div class="card">
+          <img src="/static/home/style1.jpg" alt="Classic Undercut">
+          <div class="card-content">
+            <h3>Classic Undercut</h3>
+            <p>Sharp and stylish look with faded sides</p>
+          </div>
+        </div>
+        <div class="card">
+          <img src="/static/home/style2.jpg" alt="Wavy Bob">
+          <div class="card-content">
+            <h3>Wavy Bob</h3>
+            <p>Elegant and feminine shoulder-length cut</p>
+          </div>
+        </div>
+        <div class="card">
+          <img src="/static/home/style3.jpg" alt="Textured Crop">
+          <div class="card-content">
+            <h3>Textured Crop</h3>
+            <p>Modern and low-maintenance short style</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works">
+      <h2><b>How It Works</b></h2>
+      <div class="steps">
+        <div class="step">
+          <h3>1. Face Analysis</h3>
+          <p>Our AI detects your face shape and features</p>
+        </div>
+        <div class="step">
+          <h3>2. Virtual Try-On</h3>
+          <p>See how different hairstyles look on you in real-time</p>
+        </div>
+        <div class="step">
+          <h3>3. Save Your Favorites</h3>
+          <p>Save snapshots of your favorite looks to your profile</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="products">
+      <h2><b>Recommended Products</b></h2>
+      <div class="grid">
+        <div class="card">
+          <img src="/static/home/shampoo.png" alt="Shampoo">
+          <div class="card-content">
+            <h3>Smooth & Shine Shampoo</h3>
+            <p>$12.99</p>
+          </div>
+        </div>
+        <div class="card">
+          <img src="/static/home/hairgel.png" alt="Hair Gel">
+          <div class="card-content">
+            <h3>Strong Hold Hair Gel</h3>
+            <p>$8.99</p>
+          </div>
+        </div>
+        <div class="card">
+          <img src="/static/home/serum.jpg" alt="Hair Serum">
+          <div class="card-content">
+            <h3>Keratin Hair Serum</h3>
+            <p>$15.99</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Virtual Hairstyle Try-On. All rights reserved. Build with ❤️ by Abhijeet singh</p>
+    <p>Powered by  Flask · OpenCV · Mediapipe · DeepFace ·sql_lite</p>
+  </footer>
+</body>
+</html>

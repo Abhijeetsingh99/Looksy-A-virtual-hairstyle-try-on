@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Virtual Hairstyle Try-On</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <style>
+    :root {
+      --primary: #6c63ff;
+      --accent: #ff7675;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      scroll-behavior: smooth;
+    }
+
+    /* Unified Navigation Styles */
+    header {
+      background: linear-gradient(to right, #6c63ff, #3d3aeb);
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      color: white;
+    }
+
+    header nav {
+      display: flex;
+      align-items: center;
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header .logo img {
+      height: 40px;  /* Fixed logo height */
+      width: auto;
+    }
+
+    /* Push navigation links to the right */
+    header nav ul {
+      margin-left: auto;
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    /* Style navigation links */
+    header nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 5px 10px;
+      transition: color 0.3s, background 0.3s;
+    }
+
+    header nav ul li a:hover {
+      color: #ff6600;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    /* Responsive adjustments for small screens */
+    @media (max-width: 768px) {
+      header nav ul {
+        flex-direction: column;
+        gap: 10px;
+        margin-left: 0;
+        margin-top: 10px;
+      }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .video-container {
+      background: var(--card);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    #videoFeed {
+      width: 100%;
+      max-width: 640px;
+      height: auto;
+      border-radius: 12px;
+      border: 4px solid var(--primary);
+      box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
+    }
+
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #3d3aeb;
+    }
+
+    label {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text);
+    }
+
+    .analysis-section {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .analysis-box {
+      flex: 1;
+      min-width: 280px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .hairstyle-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .hairstyle-option {
+      width: 100px;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .hairstyle-option:hover {
+      transform: scale(1.1);
+    }
+
+    .hairstyle-option img {
+      width: 100%;
+      border-radius: 8px;
+      border: 2px solid transparent;
+    }
+
+    .hairstyle-option.active img {
+      border-color: var(--primary);
+    }
+
+    .hairstyle-option p {
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    #snapshotImage {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 20px;
+      display: none;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    footer {
+      background: #2d2e32;
+      color: #ccc;
+      text-align: center;
+      padding: 20px 10px;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      .analysis-section {
+        flex-direction: column;
+      }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to right, #6c63ff, #3d3aeb);
+      padding: 20px;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .close-btn {
+      color: white;
+      text-decoration: none;
+      font-size: 1.5rem;
+      font-weight: bold;
+      transition: opacity 0.3s;
+    }
+
+    .close-btn:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <header class="header animate__animated animate__fadeInDown">
+    <nav>
+      <div class="logo">
+        <img src="{{ url_for('static', filename='home/logo_cleaned.png') }}" alt="Logo">
+        <span>Looksy</span>
+      </div>
+      <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        {% if current_user.is_authenticated %}
+          <li><a href="{{ url_for('index') }}">Try Hairstyles</a></li>
+          <li><a href="{{ url_for('profile') }}">My Profile</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+          <li><a href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="video-container animate__animated animate__fadeIn">
+      <img id="videoFeed" src="/video_feed" alt="Video Feed" />
+      <div class="controls">
+        <button id="snapshotBtn">Take Snapshot</button>
+        <button id="resetHairstyleBtn">Reset Hairstyle</button>
+        <label><input type="checkbox" id="voiceToggle" checked> Voice Assistant</label>
+      </div>
+      <img id="snapshotImage" alt="Snapshot" />
+    </div>
+
+    <div class="analysis-section">
+      <div class="analysis-box">
+        <h2>Face Analysis</h2>
+        <p>Face Shape: <span id="faceShape">Unknown</span></p>
+        <p>Emotion: <span id="emotion">Neutral</span></p>
+      </div>
+      <div class="analysis-box">
+        <h2>Recommended Hairstyles</h2>
+        <div id="hairstyleOptions"></div>
+      </div>
+      <div class="analysis-box">
+        <h2>Current Hairstyle</h2>
+        <div id="currentHairstyle"><p>None selected</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Virtual Hairstyle Try-On. Built with ❤️ by Abhijeet singh</p>
+    <p>Powered by  Flask · OpenCV · Mediapipe · DeepFace</p>
+  </footer>
+
+  <script>
+    function updateAnalysis() {
+      fetch('/get_analysis')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('faceShape').textContent = data.face_shape || 'Unknown';
+          document.getElementById('emotion').textContent = data.emotion || 'Neutral';
+
+          const optionsContainer = document.getElementById('hairstyleOptions');
+          if (data.hairstyle_options && data.hairstyle_options.length > 0) {
+            optionsContainer.innerHTML = data.hairstyle_options.map(option => `
+              <div class="hairstyle-option ${data.current_hairstyle === option.name ? 'active' : ''}" 
+                   onclick="selectHairstyle('${option.name}')">
+                <img src="${option.image_url}" alt="${option.display_name}">
+                <p>${option.display_name}</p>
+              </div>`).join('');
+          } else {
+            optionsContainer.innerHTML = '<p>No suitable hairstyles found.</p>';
+          }
+
+          const currentBox = document.getElementById('currentHairstyle');
+          if (data.current_hairstyle) {
+            const selected = data.hairstyle_options.find(opt => opt.name === data.current_hairstyle);
+            if (selected) {
+              currentBox.innerHTML = `<img src="${selected.image_url}" style="width:100%; max-width:120px; border-radius:6px;"><br><p><strong>${selected.display_name}</strong></p>`;
+            } else {
+              currentBox.innerHTML = `<p><strong>${data.current_hairstyle}</strong></p>`;
+            }
+          } else {
+            currentBox.innerHTML = '<p>None selected</p>';
+          }
+        });
+    }
+
+    function selectHairstyle(name) {
+      const voiceEnabled = document.getElementById('voiceToggle').checked;
+      fetch(`/set_hairstyle/${name}?voice=${voiceEnabled}`)
+        .then(() => updateAnalysis());
+    }
+
+    document.getElementById('resetHairstyleBtn').addEventListener('click', () => {
+      selectHairstyle('none');
+    });
+
+    document.getElementById('snapshotBtn').addEventListener('click', () => {
+      const snapshotImage = document.getElementById('snapshotImage');
+      snapshotImage.style.display = 'none';
+      fetch('/take_snapshot')
+        .then(res => res.json())
+        .then(data => {
+            if (data.snapshot) {
+                snapshotImage.src = `data:image/jpeg;base64,${data.snapshot}`;
+                snapshotImage.style.display = 'block';
+                // Redirect to profile after 3 seconds
+                setTimeout(() => {
+                    window.location.href = data.profile_url;
+                }, 3000);
+            }
+        });
+    });
+
+    updateAnalysis();
+    setInterval(updateAnalysis, 2000);
+  </script>
+</body>
+</html>
+
