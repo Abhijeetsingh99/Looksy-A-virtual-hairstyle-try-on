@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Virtual Hairstyle Try-On</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --primary-dark: #3a5a8c;
+            --accent: #ff7e5f;
+            --accent-dark: #e56a4d;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --text: #333;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .user-greeting {
+            color: white;
+            font-weight: 500;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-dark);
+        }
+
+        .snapshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .snapshot-card {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .snapshot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .snapshot-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .product-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .product-card p {
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background-color: var(--accent-dark);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 1000px;
+            height: 80vh;
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-iframe {
+            flex-grow: 1;
+            border: none;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            background: var(--light);
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .snapshots-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                height: 70vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header animate__animated animate__fadeInDown">
+        <nav>
+            <div class="logo">
+                <img src="/static/home/logo_cleaned.png" alt="Logo">
+                <span>Looksy</span>
+            </div>
+            
+            <div class="user-greeting">
+                Welcome, {{ current_user.username }}!
+            </div>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('profile') }}">My Profile</a></li>
+                <li><a href="{{ url_for('try_on') }}">Virtual Try-On</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="profile-header">
+            <h1>My Profile</h1>
+            <button id="virtualTryOnBtn" class="btn btn-accent">
+                <i class="fas fa-camera-retro"></i> Virtual Try-On
+            </button>
+        </div>
+
+        <section>
+            <h2>My Saved Hairstyles</h2>
+            {% if snapshots %}
+                <div class="snapshots-grid">
+                    {% for snapshot in snapshots %}
+                        <div class="snapshot-card">
+                            <img src="data:image/jpeg;base64,{{ snapshot.image_data }}" 
+                                 alt="Saved hairstyle {{ loop.index }}" 
+                                 class="snapshot-img">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>You haven't saved any hairstyles yet. Try our virtual try-on feature to get started!</p>
+            {% endif %}
+        </section>
+
+        <section>
+            <h2>Recommended Products</h2>
+            <div class="products-grid">
+                <div class="product-card">
+                    <h3>Premium Hair Styling Gel</h3>
+                    <p>Strong hold with natural finish</p>
+                    <form action="{{ url_for('buy_product', product_id=1) }}" method="POST">
+                        <button type="submit" class="btn">Buy Now - $12.99</button>
+                    </form>
+                </div>
+                <div class="product-card">
+                    <h3>Nourishing Hair Serum</h3>
+                    <p>Repair damaged hair with keratin</p>
+                    <form action="{{ url_for('buy_product', product_id=2) }}" method="POST">
+                        <button type="submit" class="btn">Buy Now - $15.99</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Virtual Try-On Modal -->
+    <div id="virtualTryOnModal" class="modal">
+        <div class="modal-content">
+            <iframe src="{{ url_for('home') }}" class="modal-iframe" 
+        title="Virtual Hairstyle Try-On"></iframe>
+            <div class="modal-footer">
+                <button id="closeTryOnBtn" class="btn btn-accent">
+                    <i class="fas fa-times"></i> Close Try-On
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Virtual Try-On Modal
+        const virtualTryOnBtn = document.getElementById('virtualTryOnBtn');
+        virtualTryOnBtn.addEventListener('click', () => {
+            // Redirect to the try-on page
+            window.location.href = "{{ url_for('try_on') }}";
+        });
+    </script>
+</body>
+</html>
